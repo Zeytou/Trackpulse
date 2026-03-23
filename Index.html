@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrackPulse — Productivité IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0b12;--bg2:#13121e;--bg3:#1c1a2e;--v:#7c5cfc;--vl:#a48dfd;--vd:rgba(124,92,252,0.12);--vg:rgba(124,92,252,0.3);--t:#ede9ff;--m:#7a748f;--d:#3d3958;--b:rgba(124,92,252,0.18);--b2:rgba(255,255,255,0.05);--g:#3ecf8e;--r:#f26d6d;--a:#f5a623;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Inter',sans-serif;font-size:13px;background:var(--bg);color:var(--t);}
+
+/* AUTH SCREENS */
+.auth-screen{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;overflow-y:auto;}
+.auth-screen.hidden{display:none;}
+.auth-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(124,92,252,0.15),transparent 70%);}
+.auth-box{position:relative;z-index:1;width:100%;max-width:400px;padding:20px;}
+.auth-logo{text-align:center;margin-bottom:32px;}
+.auth-logo-n{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:28px;letter-spacing:-.5px;}
+.auth-logo-n span{color:var(--v);}
+.auth-logo-t{font-size:11px;color:var(--m);margin-top:4px;letter-spacing:.1em;text-transform:uppercase;}
+.auth-card{background:var(--bg2);border:1px solid var(--b);border-radius:14px;padding:28px;}
+.auth-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.auth-sub{font-size:12px;color:var(--m);margin-bottom:22px;line-height:1.5;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:11px;color:var(--m);margin-bottom:6px;font-weight:500;}
+.form-input{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;padding:10px 13px;color:var(--t);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+.form-input:focus{border-color:var(--b);}
+.form-input::placeholder{color:var(--d);}
+.btn-full{width:100%;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-primary{background:var(--v);color:#fff;box-shadow:0 0 20px var(--vg);}
+.btn-primary:hover{background:var(--vl);transform:translateY(-1px);}
+.btn-secondary{background:var(--b2);color:var(--m);border:1px solid var(--b2);}
+.btn-secondary:hover{color:var(--t);}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--b2);}
+.auth-divider span{font-size:11px;color:var(--d);}
+.auth-link{color:var(--vl);cursor:pointer;text-decoration:none;}
+.auth-link:hover{text-decoration:underline;}
+.auth-footer{text-align:center;font-size:12px;color:var(--m);margin-top:16px;}
+.otp-inputs{display:flex;gap:10px;justify-content:center;margin:20px 0;}
+.otp-input{width:48px;height:52px;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;text-align:center;font-size:20px;font-family:'Space Grotesk',sans-serif;font-weight:700;color:var(--t);outline:none;transition:border-color .15s;}
+.otp-input:focus{border-color:var(--v);box-shadow:0 0 0 2px var(--vd);}
+.beta-badge{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(124,92,252,0.2),rgba(245,166,35,0.1));border:1px solid rgba(124,92,252,0.3);color:var(--vl);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:16px;}
+.error-msg{background:rgba(242,109,109,0.1);border:1px solid rgba(242,109,109,0.2);color:var(--r);padding:8px 12px;border-radius:7px;font-size:12px;margin-bottom:12px;display:none;}
+.success-msg{background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.2);color:var(--g);padding:8px 12px;border-radius:7px;font-size:12px;margin-bottom:12px;display:none;}
+
+/* PRICING PAGE */
+.pricing-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:none;overflow-y:auto;}
+.pricing-screen.show{display:block;}
+.pricing-header{text-align:center;padding:48px 20px 32px;}
+.pricing-title{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:800;letter-spacing:-.8px;margin-bottom:8px;}
+.pricing-title span{color:var(--v);}
+.pricing-sub{font-size:14px;color:var(--m);max-width:480px;margin:0 auto;}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;margin:0 auto;padding:0 20px 48px;}
+.price-card{background:var(--bg2);border:1px solid var(--b2);border-radius:14px;padding:24px;position:relative;transition:transform .15s;}
+.price-card:hover{transform:translateY(-2px);}
+.price-card.featured{border-color:var(--b);background:linear-gradient(135deg,var(--bg2),rgba(124,92,252,0.08));}
+.price-card.featured::before{content:'';position:absolute;inset:-1px;border-radius:14px;background:linear-gradient(135deg,var(--v),#c084fc);z-index:-1;opacity:.3;}
+.pc-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--v),#c084fc);color:#fff;font-size:10px;font-weight:700;padding:3px 12px;border-radius:10px;white-space:nowrap;}
+.pc-name{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--m);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;}
+.pc-price{font-family:'Space Grotesk',sans-serif;font-size:36px;font-weight:800;color:var(--t);letter-spacing:-1.5px;line-height:1;}
+.pc-price span{font-size:16px;color:var(--m);font-weight:400;}
+.pc-period{font-size:11px;color:var(--d);margin-top:4px;margin-bottom:16px;}
+.pc-features{list-style:none;margin-bottom:20px;}
+.pc-features li{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--m);padding:5px 0;border-bottom:1px solid var(--b2);}
+.pc-features li:last-child{border-bottom:none;}
+.pc-features li::before{content:'✓';color:var(--g);font-weight:700;flex-shrink:0;}
+.pc-features li.no::before{content:'✕';color:var(--d);}
+.pc-features li.no{color:var(--d);}
+.beta-highlight{background:linear-gradient(135deg,rgba(245,166,35,0.15),rgba(124,92,252,0.1));border:1px solid rgba(245,166,35,0.3);border-radius:10px;padding:14px;margin-bottom:16px;text-align:center;}
+.beta-price-big{font-family:'Space Grotesk',sans-serif;font-size:42px;font-weight:800;color:var(--a);letter-spacing:-2px;line-height:1;}
+.beta-original{font-size:13px;color:var(--d);text-decoration:line-through;margin-top:2px;}
+.beta-save{font-size:11px;color:var(--g);font-weight:600;margin-top:4px;}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--m);font-size:12px;cursor:pointer;padding:8px 16px;border-radius:7px;transition:all .15s;margin:16px 20px;}
+.back-btn:hover{color:var(--t);background:var(--b2);}
+
+/* ONBOARDING */
+.onboard-screen{position:fixed;inset:0;background:var(--bg);z-index:998;display:none;align-items:center;justify-content:center;}
+.onboard-screen.show{display:flex;}
+.onboard-box{width:100%;max-width:560px;padding:20px;}
+.onboard-steps{display:flex;align-items:center;gap:8px;margin-bottom:32px;justify-content:center;}
+.ostep{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .2s;}
+.ostep.done{background:var(--v);color:#fff;}
+.ostep.active{background:var(--vd);color:var(--vl);border:2px solid var(--v);}
+.ostep.inactive{background:var(--b2);color:var(--d);}
+.ostep-line{flex:1;height:1px;background:var(--b2);}
+.ostep-line.done{background:var(--v);}
+.onboard-card{background:var(--bg2);border:1px solid var(--b);border-radius:14px;padding:28px;}
+.onboard-panel{display:none;}
+.onboard-panel.active{display:block;}
+.onboard-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px;}
+.onboard-sub{font-size:12px;color:var(--m);margin-bottom:20px;line-height:1.5;}
+.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.option-card{background:var(--bg3);border:1px solid var(--b2);border-radius:9px;padding:12px;cursor:pointer;transition:all .15s;text-align:center;}
+.option-card:hover,.option-card.selected{border-color:var(--v);background:var(--vd);}
+.option-card.selected{box-shadow:0 0 0 1px var(--v);}
+.option-ico{font-size:22px;margin-bottom:6px;}
+.option-lbl{font-size:12px;font-weight:500;color:var(--t);}
+.option-sub{font-size:10px;color:var(--m);margin-top:2px;}
+.onboard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+
+/* APP */
+.app{display:none;height:100vh;overflow:hidden;}
+.app.show{display:flex;}
+.sb{width:192px;min-width:192px;background:var(--bg2);border-right:1px solid var(--b2);display:flex;flex-direction:column;height:100vh;}
+.logo{padding:15px 13px 11px;border-bottom:1px solid var(--b2);}
+.logo-n{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;letter-spacing:-.3px;}
+.logo-n span{color:var(--v);}
+.logo-t{font-size:10px;color:var(--d);letter-spacing:.08em;text-transform:uppercase;}
+.nav{flex:1;padding:9px 5px;overflow-y:auto;}
+.ng{margin-bottom:13px;}
+.nl{font-size:9px;color:var(--d);text-transform:uppercase;letter-spacing:.12em;padding:0 8px;margin-bottom:3px;}
+.ni{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:6px;cursor:pointer;color:var(--m);font-size:12px;font-weight:400;transition:all .15s;margin-bottom:1px;position:relative;user-select:none;}
+.ni:hover{background:var(--b2);color:var(--t);}
+.ni.active{background:var(--vd);color:var(--vl);font-weight:500;}
+.ni.active::before{content:'';position:absolute;left:0;top:20%;height:60%;width:2px;background:var(--v);border-radius:0 2px 2px 0;}
+.ni svg{width:13px;height:13px;flex-shrink:0;opacity:.7;}
+.ni.active svg{opacity:1;}
+.nbadge{margin-left:auto;background:var(--v);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;font-weight:600;}
+.sf{padding:7px 5px;border-top:1px solid var(--b2);}
+.usr{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;transition:background .15s;}
+.usr:hover{background:var(--b2);}
+.av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--v),#c084fc);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.beta-chip{font-size:9px;background:linear-gradient(135deg,var(--v),var(--a));color:#fff;padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px;}
+
+/* MAIN */
+.main{flex:1;height:100vh;overflow-y:auto;background:var(--bg);}
+.main::-webkit-scrollbar{width:3px;}
+.main::-webkit-scrollbar-thumb{background:var(--b);border-radius:2px;}
+.page{display:none;padding:22px 26px;animation:fi .18s ease;}
+.page.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;}
+.pt{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.4px;}
+.ps{font-size:12px;color:var(--m);margin-top:3px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s;}
+.bp{background:var(--v);color:#fff;box-shadow:0 0 14px var(--vg);}
+.bp:hover{background:var(--vl);transform:translateY(-1px);}
+.bg2btn{background:var(--b2);color:var(--m);border:1px solid var(--b2);}
+.bg2btn:hover{color:var(--t);background:var(--bg3);}
+.brbtn{background:rgba(242,109,109,0.15);color:var(--r);border:1px solid rgba(242,109,109,0.2);}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--b2);border-radius:10px;padding:14px;}
+.cardv{background:linear-gradient(135deg,var(--bg2),rgba(124,92,252,0.06));border-color:var(--b);}
+.ct{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--d);margin-bottom:8px;font-weight:500;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px;}
+.sv{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--t);letter-spacing:-.8px;line-height:1.1;}
+.svb{font-size:34px;letter-spacing:-1.2px;color:var(--vl);}
+.su{font-size:12px;color:var(--m);margin-left:1px;}
+.sl{font-size:11px;color:var(--d);margin-top:3px;}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:10px;margin-top:7px;font-weight:500;}
+.bg2b{background:rgba(62,207,142,0.1);color:var(--g);}
+.bab{background:rgba(245,166,35,0.1);color:var(--a);}
+.bvb{background:var(--vd);color:var(--vl);}
+.sbar{height:3px;background:var(--b2);border-radius:2px;margin-top:10px;overflow:hidden;}
+.sfill{height:100%;background:linear-gradient(90deg,var(--v),var(--vl));border-radius:2px;box-shadow:0 0 5px var(--vg);}
+.div{height:1px;background:var(--b2);margin:12px 0;}
+.st{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--t);margin-bottom:10px;}
+
+/* PLANNING */
+.pi{display:flex;flex-direction:column;gap:5px;}
+.pitem{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;border:1px solid var(--b2);background:var(--bg3);transition:border-color .15s;}
+.pitem.done{opacity:.4;}
+.pitem.done .ptask{text-decoration:line-through;}
+.pcheck{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--b);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:8px;}
+.pcheck.done{background:var(--v);border-color:var(--v);color:#fff;}
+.ptime{font-size:10px;color:var(--d);min-width:34px;font-family:'Space Grotesk',sans-serif;}
+.pdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.ptask{font-size:12px;color:var(--t);flex:1;}
+.pdel{background:none;border:none;color:var(--d);cursor:pointer;font-size:14px;padding:0 2px;transition:color .15s;line-height:1;}
+.pdel:hover{color:var(--r);}
+.tag{font-size:9px;padding:2px 6px;border-radius:6px;font-weight:500;}
+.tr{background:rgba(242,109,109,0.1);color:var(--r);}
+.ta{background:rgba(245,166,35,0.1);color:var(--a);}
+.tv{background:var(--vd);color:var(--vl);}
+.add-task{display:flex;gap:6px;margin-top:8px;}
+.add-input{flex:1;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;padding:7px 10px;color:var(--t);font-size:12px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+.add-input:focus{border-color:var(--b);}
+.add-sel{background:var(--bg3);border:1px solid var(--b2);border-radius:7px;padding:7px 8px;color:var(--m);font-size:11px;font-family:'Inter',sans-serif;outline:none;cursor:pointer;}
+
+/* CHARTS */
+.bars{display:flex;align-items:flex-end;gap:4px;height:60px;}
+.bw{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.bar{width:100%;border-radius:2px 2px 0 0;background:var(--vd);border:1px solid var(--b);}
+.bar.today{background:linear-gradient(180deg,var(--vl),var(--v));border-color:var(--v);box-shadow:0 0 6px var(--vg);}
+.bl{font-size:9px;color:var(--d);}
+.bl.today{color:var(--vl);}
+.di{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.dn{font-size:11px;color:var(--m);width:65px;flex-shrink:0;}
+.dbw{flex:1;height:3px;background:var(--b2);border-radius:2px;overflow:hidden;}
+.db{height:100%;background:linear-gradient(90deg,var(--v),var(--vl));border-radius:2px;}
+.dt{font-size:10px;color:var(--d);min-width:30px;text-align:right;}
+
+/* TIMER */
+.twrap{display:flex;flex-direction:column;align-items:center;padding:18px 0;}
+.spill{display:inline-flex;align-items:center;gap:6px;background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.2);color:var(--g);padding:4px 11px;border-radius:16px;font-size:11px;font-weight:500;margin-bottom:18px;}
+.pulse{width:5px;height:5px;background:var(--g);border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.ring{width:155px;height:155px;position:relative;display:flex;align-items:center;justify-content:center;}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+.ring circle{fill:none;stroke-width:2.5;}
+.rcbg{stroke:var(--b2);}
+.rcprog{stroke:var(--v);stroke-linecap:round;filter:drop-shadow(0 0 4px var(--vg));transition:stroke-dashoffset 1s linear;}
+.rinn{text-align:center;z-index:1;}
+.ttime{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-1.2px;color:var(--t);}
+.tlbl{font-size:10px;color:var(--d);margin-top:2px;}
+.ttask{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--t);margin-top:14px;text-align:center;}
+.tsub{font-size:11px;color:var(--m);margin-top:2px;text-align:center;}
+.tctrl{display:flex;align-items:center;gap:10px;margin-top:16px;}
+.bcirc{width:36px;height:36px;border-radius:50%;border:1px solid var(--b2);background:var(--bg2);color:var(--m);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;}
+.bcirc:hover{border-color:var(--b);color:var(--t);}
+.bplay{width:48px;height:48px;border-radius:50%;background:var(--v);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 0 18px var(--vg);transition:all .15s;}
+.bplay:hover{background:var(--vl);transform:scale(1.04);}
+.tgl{width:34px;height:19px;background:var(--b2);border-radius:9px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.tgl.on{background:var(--v);}
+.tgl::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;background:#fff;border-radius:50%;transition:transform .2s;}
+.tgl.on::after{transform:translateX(15px);}
+.blitem{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;background:var(--bg3);border-radius:7px;border:1px solid var(--b2);margin-bottom:5px;}
+.blinfo{display:flex;align-items:center;gap:9px;}
+.blico{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.bln{font-size:12px;font-weight:500;color:var(--t);}
+.bld{font-size:10px;color:var(--m);}
+
+/* ROOMS */
+.rooms{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.room{background:var(--bg3);border:1px solid var(--b2);border-radius:9px;padding:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.room:hover{border-color:var(--b);transform:translateY(-1px);}
+.room.live{border-color:rgba(62,207,142,0.25);}
+.rbadge{position:absolute;top:10px;right:10px;font-size:9px;background:rgba(62,207,142,0.12);color:var(--g);padding:2px 7px;border-radius:7px;font-weight:600;text-transform:uppercase;}
+.rn{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;color:var(--t);margin-bottom:2px;}
+.rd{font-size:11px;color:var(--m);margin-bottom:9px;}
+.mavs{display:flex;}
+.mav{width:18px;height:18px;border-radius:50%;border:2px solid var(--bg3);margin-left:-4px;font-size:7px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;}
+.mav:first-child{margin-left:0;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:24px;width:460px;max-width:92vw;animation:fi .2s ease;}
+.modal-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--m);margin-bottom:18px;}
+.form-group2{margin-bottom:12px;}
+.form-label2{display:block;font-size:11px;color:var(--m);margin-bottom:5px;}
+.form-input2{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;padding:8px 11px;color:var(--t);font-size:12px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;}
+.form-input2:focus{border-color:var(--b);}
+.form-row{display:flex;gap:8px;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+/* SETTINGS */
+.settings-modal{background:var(--bg2);border:1px solid var(--b);border-radius:12px;width:520px;max-width:92vw;overflow:hidden;animation:fi .2s ease;}
+.stabs{display:flex;border-bottom:1px solid var(--b2);}
+.stab{padding:10px 16px;font-size:12px;font-weight:500;color:var(--m);cursor:pointer;transition:all .15s;border-bottom:2px solid transparent;}
+.stab.active{color:var(--vl);border-bottom-color:var(--v);}
+.stabody{padding:18px;}
+.stabpanel{display:none;}
+.stabpanel.active{display:block;}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b2);}
+.srow:last-child{border-bottom:none;}
+.srlbl{font-size:12px;color:var(--t);}
+.srsub{font-size:10px;color:var(--m);margin-top:2px;}
+.sinput{background:var(--bg3);border:1px solid var(--b2);border-radius:6px;padding:6px 10px;color:var(--t);font-size:12px;font-family:'Inter',sans-serif;outline:none;width:130px;}
+.sselect{background:var(--bg3);border:1px solid var(--b2);border-radius:6px;padding:6px 10px;color:var(--t);font-size:11px;font-family:'Inter',sans-serif;outline:none;cursor:pointer;}
+
+/* ROOM DETAIL */
+.room-detail{background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:20px;width:520px;max-width:92vw;animation:fi .2s ease;}
+.rmember{display:flex;align-items:center;gap:10px;padding:8px 11px;background:var(--bg3);border-radius:7px;margin-bottom:5px;}
+.rmav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.rmname{font-size:12px;font-weight:500;color:var(--t);flex:1;}
+.voice-bar{display:flex;align-items:flex-end;gap:2px;height:16px;}
+.vbar{width:3px;border-radius:2px;background:var(--g);animation:vb .6s ease infinite;}
+.vbar:nth-child(2){animation-delay:.1s;}
+.vbar:nth-child(3){animation-delay:.2s;}
+.vbar:nth-child(4){animation-delay:.3s;}
+@keyframes vb{0%,100%{height:4px;}50%{height:14px;}}
+.chat-area{background:var(--bg3);border-radius:8px;padding:10px;height:100px;overflow-y:auto;margin-bottom:8px;font-size:11px;color:var(--m);display:flex;flex-direction:column;gap:5px;}
+.chat-msg{display:flex;gap:6px;}
+.chat-name{color:var(--vl);font-weight:500;}
+.chat-inp{display:flex;gap:6px;}
+.chat-input{flex:1;background:var(--bg2);border:1px solid var(--b2);border-radius:6px;padding:6px 10px;color:var(--t);font-size:12px;font-family:'Inter',sans-serif;outline:none;}
+
+/* DISCORD TERMINAL */
+.dc-terminal{background:#0d1117;border:1px solid rgba(88,101,242,0.3);border-radius:8px;padding:12px;font-family:monospace;font-size:11px;height:140px;overflow-y:auto;margin-bottom:10px;}
+.dc-line{display:flex;gap:8px;margin-bottom:4px;}
+.dc-prompt{color:#5865f2;}
+.dc-cmd{color:var(--vl);}
+.dc-resp{color:var(--g);}
+.dc-inp{display:flex;gap:8px;align-items:center;}
+.dc-p2{color:#5865f2;font-family:monospace;font-size:11px;white-space:nowrap;}
+.dc-cinput{flex:1;background:transparent;border:none;outline:none;color:var(--t);font-family:monospace;font-size:11px;}
+
+/* JOURNAL */
+.jinw{display:flex;align-items:center;gap:9px;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;padding:9px 12px;margin-bottom:14px;transition:border-color .15s;}
+.jinw:focus-within{border-color:var(--b);}
+.jinput{flex:1;background:transparent;border:none;outline:none;color:var(--t);font-size:12px;font-family:'Inter',sans-serif;}
+.jinput::placeholder{color:var(--d);}
+.jentry{padding:10px 12px;border-left:2px solid var(--vd);background:var(--bg3);border-radius:0 7px 7px 0;margin-bottom:7px;}
+.jmeta{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.jtime{font-size:10px;color:var(--d);}
+.jtag{font-size:9px;padding:2px 7px;border-radius:7px;background:var(--vd);color:var(--vl);}
+.jtext{font-size:12px;color:var(--m);line-height:1.5;}
+.jins{font-size:11px;color:var(--vl);margin-top:5px;}
+
+/* HABITS */
+.hitem{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--bg3);border-radius:7px;border:1px solid var(--b2);margin-bottom:5px;cursor:pointer;transition:border-color .15s;}
+.hitem:hover{border-color:var(--b);}
+.hcheck{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--b);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;font-size:8px;}
+.hcheck.done{background:var(--v);border-color:var(--v);box-shadow:0 0 5px var(--vg);color:#fff;}
+.hgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
+.hday{aspect-ratio:1;border-radius:3px;}
+
+/* COACH */
+.cobb{background:linear-gradient(135deg,var(--bg3),rgba(124,92,252,0.06));border:1px solid var(--b);border-radius:9px;padding:14px;margin-bottom:12px;position:relative;}
+.cobb::before{content:'🤖';position:absolute;top:-9px;left:14px;font-size:16px;}
+.cobq{font-size:12px;color:var(--t);font-weight:500;line-height:1.4;}
+.cobta{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;padding:9px 11px;color:var(--t);font-size:12px;font-family:'Inter',sans-serif;outline:none;resize:none;margin-top:9px;transition:border-color .15s;}
+.cobta:focus{border-color:var(--b);}
+
+/* INSIGHTS */
+.ins{background:var(--vd);border:1px solid var(--b);border-radius:7px;padding:9px 11px;margin-bottom:7px;display:flex;align-items:flex-start;gap:8px;}
+.iico{font-size:13px;flex-shrink:0;margin-top:1px;}
+.it{font-size:11px;color:var(--m);line-height:1.5;}
+.it strong{color:var(--vl);}
+
+/* PROGRESS */
+.pr{margin-bottom:9px;}
+.prt{display:flex;justify-content:space-between;margin-bottom:4px;}
+.prl{font-size:11px;color:var(--m);}
+.prp{font-size:11px;}
+.prb{height:4px;background:var(--b2);border-radius:2px;overflow:hidden;}
+.prf{height:100%;border-radius:2px;}
+
+/* SESSION */
+.ssi{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid var(--b2);}
+.ssi:last-child{border-bottom:none;}
+.ssidot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.ssin{font-size:12px;color:var(--m);flex:1;}
+.ssid{font-size:10px;color:var(--d);}
+
+/* NOTIF */
+.notif{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--b);border-radius:9px;padding:12px 16px;font-size:12px;z-index:9999;animation:fi .2s ease;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.4);max-width:320px;}
+.notif.success{border-color:rgba(62,207,142,0.4);}
+.notif.error{border-color:rgba(242,109,109,0.4);}
+
+code{color:var(--vl);font-size:12px;font-family:monospace;}
+.srvi{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bg3);border-radius:7px;border:1px solid var(--b2);margin-bottom:5px;}
+.sico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.sn{font-size:12px;font-weight:500;color:var(--t);}
+.sm{font-size:10px;color:var(--m);}
+.ss{font-size:11px;color:var(--vl);margin-left:auto;margin-right:9px;}
+.dccard{background:linear-gradient(135deg,rgba(88,101,242,0.12),rgba(124,92,252,0.08));border:1px solid rgba(88,101,242,0.25);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.dcico{width:38px;height:38px;background:#5865f2;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<!-- ==================== PRICING PAGE ==================== -->
+<div class="pricing-screen" id="pricing-screen">
+  <div class="back-btn" onclick="hidePricing()">← Retour</div>
+  <div class="pricing-header">
+    <div style="margin-bottom:12px"><span class="beta-badge">🧪 Accès Beta Testeur</span></div>
+    <div class="pricing-title">Choisis ton plan <span>TrackPulse</span></div>
+    <div class="pricing-sub">Sois parmi les premiers à accéder à TrackPulse. Prix spéciaux beta — valables à vie.</div>
+  </div>
+  <div class="pricing-grid">
+    <!-- FREE -->
+    <div class="price-card">
+      <div class="pc-name">Gratuit</div>
+      <div class="pc-price">0<span>€</span></div>
+      <div class="pc-period">Pour toujours</div>
+      <ul class="pc-features">
+        <li>2h de focus par jour</li>
+        <li>1 appareil</li>
+        <li>Sessions de base</li>
+        <li>Travail collectif (lecture)</li>
+        <li class="no">IA Planning</li>
+        <li class="no">Analytics avancés</li>
+        <li class="no">Coach IA</li>
+        <li class="no">Discord</li>
+      </ul>
+      <button class="btn-full btn-secondary" onclick="selectPlan('free')">Commencer gratuitement</button>
+    </div>
+    <!-- BETA -->
+    <div class="price-card featured">
+      <div class="pc-badge">🧪 Beta Testeur</div>
+      <div class="beta-highlight">
+        <div class="beta-price-big">3,99<span style="font-size:20px">€</span></div>
+        <div class="beta-original">19,99€/mois</div>
+        <div class="beta-save">🎉 80% de réduction — prix bloqué à vie</div>
+      </div>
+      <ul class="pc-features">
+        <li>Focus illimité — tous appareils</li>
+        <li>IA Planning quotidien</li>
+        <li>Analytics complets</li>
+        <li>Coach de responsabilisation IA</li>
+        <li>Journal de procrastination IA</li>
+        <li>Travail collectif complet</li>
+        <li>Intégration Discord</li>
+        <li>Support beta prioritaire</li>
+        <li>Accès aux nouvelles features en avant-première</li>
+      </ul>
+      <button class="btn-full btn-primary" onclick="selectPlan('beta')" style="background:linear-gradient(135deg,var(--v),var(--a))">🚀 Accès Beta à 3,99€/mois</button>
+      <div style="text-align:center;font-size:10px;color:var(--d);margin-top:8px">Sans engagement · Annulable à tout moment</div>
+    </div>
+    <!-- PRO -->
+    <div class="price-card">
+      <div class="pc-name">Pro</div>
+      <div class="pc-price">19,99<span>€</span></div>
+      <div class="pc-period">par mois · Lancement Q3 2025</div>
+      <ul class="pc-features">
+        <li>Tout du plan Beta</li>
+        <li>API access</li>
+        <li>Intégrations avancées</li>
+        <li>Rapports PDF automatiques</li>
+        <li>Support prioritaire 24/7</li>
+        <li class="no">Disponible au lancement officiel</li>
+      </ul>
+      <button class="btn-full btn-secondary" disabled style="opacity:.5;cursor:not-allowed">Bientôt disponible</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== AUTH SCREENS ==================== -->
+<!-- LANDING -->
+<div class="auth-screen" id="screen-landing">
+  <div class="auth-bg"></div>
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-n">Track<span>Pulse</span></div>
+      <div class="auth-logo-t">Productivité IA · Beta</div>
+    </div>
+    <div class="auth-card">
+      <div style="text-align:center;margin-bottom:20px">
+        <div class="beta-badge">🧪 Accès Beta Testeur</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px;letter-spacing:-.3px">Reprends le contrôle de ta productivité</div>
+        <div style="font-size:12px;color:var(--m);line-height:1.6">Sessions focus · IA Planning · Body Doubling · Discord</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--m)"><span>⚡</span>Sessions de focus avec blocage multi-appareils</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--m)"><span>🤖</span>Planning IA adapté à ton rythme biologique</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg3);border-radius:8px;font-size:12px;color:var(--m)"><span>👥</span>Travail collectif et intégration Discord</div>
+      </div>
+      <button class="btn-full btn-primary" onclick="showScreen('screen-register')" style="margin-bottom:10px">Créer mon compte gratuitement</button>
+      <button class="btn-full btn-secondary" onclick="showScreen('screen-login')">J'ai déjà un compte</button>
+      <div style="text-align:center;margin-top:14px">
+        <span style="font-size:11px;color:var(--d);cursor:pointer" onclick="showPricing()">Voir les tarifs →</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div class="auth-screen hidden" id="screen-register">
+  <div class="auth-bg"></div>
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-n">Track<span>Pulse</span></div>
+    </div>
+    <div class="auth-card">
+      <div class="beta-badge">🧪 Beta Testeur — 3,99€/mois</div>
+      <div class="auth-title">Créer ton compte</div>
+      <div class="auth-sub">Rejoins les premiers beta testeurs TrackPulse.</div>
+      <div id="reg-error" class="error-msg"></div>
+      <div class="form-group">
+        <label class="form-label">Prénom</label>
+        <input class="form-input" id="reg-name" placeholder="Ex: Alex" type="text"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Adresse email</label>
+        <input class="form-input" id="reg-email" placeholder="toi@email.com" type="email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input class="form-input" id="reg-password" placeholder="8 caractères minimum" type="password"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirmer le mot de passe</label>
+        <input class="form-input" id="reg-password2" placeholder="Confirme ton mot de passe" type="password"/>
+      </div>
+      <button class="btn-full btn-primary" onclick="register()" style="margin-bottom:12px" id="reg-btn">Créer mon compte</button>
+      <div style="text-align:center;font-size:12px;color:var(--m)">
+        Déjà un compte ? <span class="auth-link" onclick="showScreen('screen-login')">Se connecter</span>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <span class="auth-link" style="font-size:11px" onclick="showScreen('screen-landing')">← Retour</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VERIFY EMAIL -->
+<div class="auth-screen hidden" id="screen-verify">
+  <div class="auth-bg"></div>
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-n">Track<span>Pulse</span></div>
+    </div>
+    <div class="auth-card" style="text-align:center">
+      <div style="font-size:40px;margin-bottom:12px">📬</div>
+      <div class="auth-title">Vérifie ton email</div>
+      <div class="auth-sub" id="verify-sub">Un code à 6 chiffres a été envoyé à <strong id="verify-email-display"></strong></div>
+      <div class="otp-inputs">
+        <input class="otp-input" maxlength="1" id="otp0" oninput="otpNext(0)" onkeydown="otpKey(event,0)"/>
+        <input class="otp-input" maxlength="1" id="otp1" oninput="otpNext(1)" onkeydown="otpKey(event,1)"/>
+        <input class="otp-input" maxlength="1" id="otp2" oninput="otpNext(2)" onkeydown="otpKey(event,2)"/>
+        <input class="otp-input" maxlength="1" id="otp3" oninput="otpNext(3)" onkeydown="otpKey(event,3)"/>
+        <input class="otp-input" maxlength="1" id="otp4" oninput="otpNext(4)" onkeydown="otpKey(event,4)"/>
+        <input class="otp-input" maxlength="1" id="otp5" oninput="otpNext(5)" onkeydown="otpKey(event,5)"/>
+      </div>
+      <div id="verify-error" class="error-msg" style="text-align:left"></div>
+      <button class="btn-full btn-primary" onclick="verifyCode()" id="verify-btn">Vérifier le code</button>
+      <div style="margin-top:14px;font-size:12px;color:var(--m)">
+        Pas reçu ? <span class="auth-link" onclick="resendCode()">Renvoyer le code</span>
+      </div>
+      <div style="margin-top:8px;font-size:11px;color:var(--d)" id="resend-timer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="auth-screen hidden" id="screen-login">
+  <div class="auth-bg"></div>
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-n">Track<span>Pulse</span></div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-title">Se connecter</div>
+      <div class="auth-sub">Bon retour sur TrackPulse 👋</div>
+      <div id="login-error" class="error-msg"></div>
+      <div id="login-success" class="success-msg"></div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="login-email" placeholder="toi@email.com" type="email"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input class="form-input" id="login-password" placeholder="Ton mot de passe" type="password" onkeydown="if(event.key==='Enter')login()"/>
+      </div>
+      <div style="text-align:right;margin-top:-8px;margin-bottom:14px">
+        <span class="auth-link" style="font-size:11px" onclick="showScreen('screen-forgot')">Mot de passe oublié ?</span>
+      </div>
+      <button class="btn-full btn-primary" onclick="login()" style="margin-bottom:12px" id="login-btn">Se connecter</button>
+      <div style="text-align:center;font-size:12px;color:var(--m)">
+        Pas encore de compte ? <span class="auth-link" onclick="showScreen('screen-register')">Créer un compte</span>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <span class="auth-link" style="font-size:11px" onclick="showScreen('screen-landing')">← Retour</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div class="auth-screen hidden" id="screen-forgot">
+  <div class="auth-bg"></div>
+  <div class="auth-box">
+    <div class="auth-logo"><div class="auth-logo-n">Track<span>Pulse</span></div></div>
+    <div class="auth-card">
+      <div style="font-size:32px;text-align:center;margin-bottom:12px">🔑</div>
+      <div class="auth-title">Mot de passe oublié</div>
+      <div class="auth-sub">Entre ton email et on t'envoie un lien de réinitialisation.</div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="forgot-email" placeholder="toi@email.com" type="email"/>
+      </div>
+      <button class="btn-full btn-primary" onclick="sendReset()" style="margin-bottom:12px">Envoyer le lien</button>
+      <div style="text-align:center"><span class="auth-link" style="font-size:11px" onclick="showScreen('screen-login')">← Retour à la connexion</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ONBOARDING ==================== -->
+<div class="onboard-screen" id="onboard-screen">
+  <div class="onboard-box">
+    <div class="onboard-steps">
+      <div class="ostep active" id="os0">1</div>
+      <div class="ostep-line" id="ol0"></div>
+      <div class="ostep inactive" id="os1">2</div>
+      <div class="ostep-line" id="ol1"></div>
+      <div class="ostep inactive" id="os2">3</div>
+      <div class="ostep-line" id="ol2"></div>
+      <div class="ostep inactive" id="os3">4</div>
+    </div>
+    <div class="onboard-card">
+      <!-- STEP 1 -->
+      <div class="onboard-panel active" id="op0">
+        <div class="onboard-title">Bienvenue <span id="ob-name">!</span> 🎉</div>
+        <div class="onboard-sub">Quelques questions rapides pour personnaliser TrackPulse selon ton profil.</div>
+        <div style="font-size:12px;color:var(--m);margin-bottom:10px;font-weight:500">Quel est ton principal défi ?</div>
+        <div class="option-grid">
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">😴</div><div class="option-lbl">Procrastination</div><div class="option-sub">Je repousse toujours</div></div>
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">📱</div><div class="option-lbl">Distractions</div><div class="option-sub">Réseaux sociaux</div></div>
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">🗂️</div><div class="option-lbl">Organisation</div><div class="option-sub">Pas de système</div></div>
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">🔥</div><div class="option-lbl">Burnout</div><div class="option-sub">Trop de travail</div></div>
+        </div>
+        <div class="onboard-nav"><div></div><button class="btn bp" onclick="nextStep(1)">Continuer →</button></div>
+      </div>
+      <!-- STEP 2 -->
+      <div class="onboard-panel" id="op1">
+        <div class="onboard-title">Ton profil 👤</div>
+        <div class="onboard-sub">Pour que l'IA adapte tes sessions et ton planning.</div>
+        <div style="font-size:12px;color:var(--m);margin-bottom:10px;font-weight:500">Tu es plutôt...</div>
+        <div class="option-grid">
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">💻</div><div class="option-lbl">Freelance</div><div class="option-sub">Travail indépendant</div></div>
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">🚀</div><div class="option-lbl">Entrepreneur</div><div class="option-sub">Tu builds un projet</div></div>
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">🎓</div><div class="option-lbl">Étudiant</div><div class="option-sub">Études et révisions</div></div>
+          <div class="option-card" onclick="selectOption(this)"><div class="option-ico">🏢</div><div class="option-lbl">Salarié remote</div><div class="option-sub">Télétravail</div></div>
+        </div>
+        <div class="onboard-nav"><button class="btn bg2btn" onclick="nextStep(0)">← Retour</button><button class="btn bp" onclick="nextStep(2)">Continuer →</button></div>
+      </div>
+      <!-- STEP 3 -->
+      <div class="onboard-panel" id="op2">
+        <div class="onboard-title">Tes habitudes ⏰</div>
+        <div class="onboard-sub">L'IA va adapter ton planning à ton rythme naturel.</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+          <div>
+            <label style="font-size:11px;color:var(--m);display:block;margin-bottom:5px">Tu commences à travailler vers...</label>
+            <select style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;padding:8px 11px;color:var(--t);font-size:12px;outline:none" id="ob-start">
+              <option>6h - 8h (early bird)</option>
+              <option selected>8h - 10h (matin normal)</option>
+              <option>10h - 12h (matin tardif)</option>
+              <option>Après-midi</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--m);display:block;margin-bottom:5px">Durée de session préférée</label>
+            <select style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;padding:8px 11px;color:var(--t);font-size:12px;outline:none" id="ob-duration">
+              <option>25 min (Pomodoro classique)</option>
+              <option selected>45 min (deep work)</option>
+              <option>60 min</option>
+              <option>90 min</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:11px;color:var(--m);display:block;margin-bottom:5px">Objectif d'heures de focus par jour</label>
+            <select style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;padding:8px 11px;color:var(--t);font-size:12px;outline:none">
+              <option>2h</option>
+              <option>4h</option>
+              <option selected>6h</option>
+              <option>8h+</option>
+            </select>
+          </div>
+        </div>
+        <div class="onboard-nav"><button class="btn bg2btn" onclick="nextStep(1)">← Retour</button><button class="btn bp" onclick="nextStep(3)">Continuer →</button></div>
+      </div>
+      <!-- STEP 4 -->
+      <div class="onboard-panel" id="op3">
+        <div class="onboard-title">Tout est prêt ! 🚀</div>
+        <div class="onboard-sub">TrackPulse a configuré ton espace personnalisé. Commence ta première session maintenant.</div>
+        <div style="background:var(--bg3);border-radius:10px;padding:16px;margin-bottom:16px">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:10px;color:var(--t)">Ton premier planning IA ✨</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--m)"><span style="color:var(--g)">✓</span>Profil configuré</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--m)"><span style="color:var(--g)">✓</span>Habitudes matin/soir générées</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--m)"><span style="color:var(--g)">✓</span>Planning du jour prêt</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--m)"><span style="color:var(--g)">✓</span>Sessions de focus configurées</div>
+          </div>
+        </div>
+        <div style="background:var(--vd);border:1px solid var(--b);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--m)">
+          🧪 <strong style="color:var(--vl)">Beta Testeur</strong> — Tu as accès à toutes les fonctionnalités. Ton feedback nous aide à améliorer TrackPulse !
+        </div>
+        <button class="btn-full btn-primary" onclick="enterApp()">Entrer dans TrackPulse →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div class="app" id="app">
+  <aside class="sb">
+    <div class="logo">
+      <div class="logo-n">Track<span>Pulse</span></div>
+      <div class="logo-t">Productivité IA</div>
+    </div>
+    <nav class="nav">
+      <div class="ng">
+        <div class="nl">Principal</div>
+        <div class="ni active" data-page="dashboard"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Tableau de bord</div>
+        <div class="ni" data-page="focus"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12,6 12,12 16,14" stroke-linecap="round"/></svg>Session Focus<span class="nbadge">Actif</span></div>
+        <div class="ni" data-page="analytics"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12" stroke-linecap="round" stroke-linejoin="round"/></svg>Statistiques</div>
+        <div class="ni" data-page="planning"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Planning IA</div>
+      </div>
+      <div class="ng">
+        <div class="nl">Communauté</div>
+        <div class="ni" data-page="doubling"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Travail collectif</div>
+        <div class="ni" data-page="discord"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>Discord</div>
+      </div>
+      <div class="ng">
+        <div class="nl">Outils IA</div>
+        <div class="ni" data-page="journal"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Journal IA</div>
+        <div class="ni" data-page="coach"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Coach IA</div>
+        <div class="ni" data-page="habits"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Habitudes</div>
+      </div>
+    </nav>
+    <div class="sf">
+      <div class="usr" onclick="openSettings()">
+        <div class="av" id="user-avatar">T</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:4px"><span style="font-size:12px;font-weight:500" id="user-display-name">Toi</span><span class="beta-chip">Beta</span></div>
+          <div style="font-size:10px;color:var(--vl)" id="user-plan-label">✦ Beta Testeur</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="ph">
+        <div><div class="pt" id="dash-greeting">Bonjour 👋</div><div class="ps">Dimanche 22 mars · Voici ton résumé du jour</div></div>
+        <button class="btn bp" onclick="goPage('focus')"><svg width="10" height="10" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg>Lancer une session</button>
+      </div>
+      <div class="g4">
+        <div class="card cardv"><div class="ct">Score du jour</div><div class="sv svb">78</div><div class="sl">Productivité globale</div><div class="sbar"><div class="sfill" style="width:78%"></div></div></div>
+        <div class="card"><div class="ct">Temps de focus</div><div class="sv">3<span class="su">h 24</span></div><div class="sl">Aujourd'hui</div><div class="badge bg2b">↑ +42 min vs hier</div></div>
+        <div class="card"><div class="ct">Sessions terminées</div><div class="sv">4</div><div class="sl">Sessions de focus</div><div class="badge bg2b">↑ Objectif : 5</div></div>
+        <div class="card"><div class="ct">Série en cours</div><div class="sv">12<span class="su">j</span></div><div class="sl">Jours consécutifs</div><div class="badge bab">🔥 Record !</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="st">Planning IA du jour</div>
+          <div class="pi" id="dash-tasks"></div>
+        </div>
+        <div class="card">
+          <div class="st">Activité — 7 derniers jours</div>
+          <div class="bars">
+            <div class="bw"><div class="bar" style="height:26px"></div><span class="bl">Lun</span></div>
+            <div class="bw"><div class="bar" style="height:44px"></div><span class="bl">Mar</span></div>
+            <div class="bw"><div class="bar" style="height:32px"></div><span class="bl">Mer</span></div>
+            <div class="bw"><div class="bar" style="height:50px"></div><span class="bl">Jeu</span></div>
+            <div class="bw"><div class="bar" style="height:36px"></div><span class="bl">Ven</span></div>
+            <div class="bw"><div class="bar" style="height:28px"></div><span class="bl">Sam</span></div>
+            <div class="bw"><div class="bar today" style="height:42px"></div><span class="bl today">Auj</span></div>
+          </div>
+          <div class="div"></div>
+          <div class="st">Top distractions</div>
+          <div class="di"><span class="dn">Instagram</span><div class="dbw"><div class="db" style="width:70%"></div></div><span class="dt">42 min</span></div>
+          <div class="di"><span class="dn">YouTube</span><div class="dbw"><div class="db" style="width:45%"></div></div><span class="dt">28 min</span></div>
+          <div class="di"><span class="dn">Twitter/X</span><div class="dbw"><div class="db" style="width:25%"></div></div><span class="dt">15 min</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOCUS -->
+    <div class="page" id="page-focus">
+      <div class="ph"><div><div class="pt">Session Focus</div><div class="ps">Les distractions sont bloquées sur tous tes appareils</div></div><button class="btn bg2btn" onclick="openSettings()">⚙️ Paramètres</button></div>
+      <div class="g2">
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;">
+          <div class="twrap">
+            <div class="spill"><div class="pulse"></div>Session active</div>
+            <div class="ring">
+              <svg viewBox="0 0 155 155"><circle class="rcbg" cx="77.5" cy="77.5" r="72"/><circle class="rcprog" id="ring-prog" cx="77.5" cy="77.5" r="72"/></svg>
+              <div class="rinn"><div class="ttime" id="timer-display">25:00</div><div class="tlbl">restantes</div></div>
+            </div>
+            <div class="ttask">Deep work — développement</div>
+            <div class="tsub">Session Pomodoro · 25 minutes</div>
+            <div class="tctrl">
+              <button class="bcirc" onclick="resetTimer()"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-3.61" stroke-linecap="round"/></svg></button>
+              <button class="bplay" id="play-btn" onclick="toggleTimer()"><svg id="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"/></svg></button>
+              <button class="bcirc" onclick="stopTimer()"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="card">
+            <div class="ct">Appareils bloqués</div>
+            <div class="blitem"><div class="blinfo"><div class="blico" style="background:var(--vd)">💻</div><div><div class="bln">Ordinateur</div><div class="bld">Réseaux sociaux, streaming</div></div></div><div class="tgl on" onclick="this.classList.toggle('on');notify((this.classList.contains('on')?'🔒 Ordinateur bloqué':'🔓 Ordinateur débloqué'),'success')"></div></div>
+            <div class="blitem"><div class="blinfo"><div class="blico" style="background:rgba(62,207,142,0.1)">📱</div><div><div class="bln">Mobile</div><div class="bld">Instagram, TikTok, YouTube</div></div></div><div class="tgl on" onclick="this.classList.toggle('on');notify((this.classList.contains('on')?'🔒 Mobile bloqué':'🔓 Mobile débloqué'),'success')"></div></div>
+            <div class="blitem"><div class="blinfo"><div class="blico" style="background:rgba(245,166,35,0.1)">📟</div><div><div class="bln">Tablette</div><div class="bld">Non connectée</div></div></div><div class="tgl" onclick="this.classList.toggle('on')"></div></div>
+          </div>
+          <div class="card">
+            <div class="ct">Sessions du jour</div>
+            <div class="ssi"><div class="ssidot" style="background:var(--g)"></div><span class="ssin">Révision projet</span><span class="ssid">09:00 · 45 min ✓</span></div>
+            <div class="ssi"><div class="ssidot" style="background:var(--g)"></div><span class="ssin">Emails admin</span><span class="ssid">10:00 · 30 min ✓</span></div>
+            <div class="ssi"><div class="ssidot" style="background:var(--v);animation:pulse 1.5s infinite"></div><span class="ssin" style="color:var(--t)">Deep work dev</span><span class="ssid" style="color:var(--vl)">En cours</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <div class="ph"><div><div class="pt">Statistiques</div><div class="ps">Analyse de ta productivité — 30 derniers jours</div></div><button class="btn bg2btn" onclick="notify('Rapport exporté en PDF ✓','success')">Exporter</button></div>
+      <div class="g4">
+        <div class="card"><div class="ct">Focus total</div><div class="sv">68<span class="su">h</span></div><div class="badge bg2b">↑ +12h ce mois</div></div>
+        <div class="card"><div class="ct">Score moyen</div><div class="sv">72</div><div class="badge bg2b">↑ +8 pts</div></div>
+        <div class="card"><div class="ct">Meilleure heure</div><div class="sv">10<span class="su">h</span></div><div class="sl">Pic de concentration</div></div>
+        <div class="card"><div class="ct">Sessions complétées</div><div class="sv">94</div><div class="badge bvb">Taux : 87%</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="st">Tes heures de concentration</div>
+          <div style="display:flex;align-items:flex-end;gap:3px;height:70px;margin-bottom:7px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:14px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">7h</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:30px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">8h</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:48px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">9h</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:66px;background:linear-gradient(180deg,var(--vl),var(--v));border-radius:2px 2px 0 0;border:1px solid var(--v);box-shadow:0 0 7px var(--vg)"></div><span style="font-size:9px;color:var(--vl)">10h⭐</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:56px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">11h</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:28px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">12h</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:18px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">14h</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:40px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">15h</span></div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1"><div style="width:100%;height:32px;background:var(--vd);border-radius:2px 2px 0 0;border:1px solid var(--b)"></div><span style="font-size:9px;color:var(--d)">16h</span></div>
+          </div>
+          <div class="ins"><span class="iico">💡</span><span class="it">Tu es <strong>40% plus productif</strong> entre 10h et 12h. L'IA planifie tes tâches importantes sur ce créneau.</span></div>
+        </div>
+        <div class="card">
+          <div class="st">Répartition du temps</div>
+          <div class="pr"><div class="prt"><span class="prl">Travail profond</span><span class="prp" style="color:var(--vl)">58%</span></div><div class="prb"><div class="prf" style="width:58%;background:linear-gradient(90deg,var(--v),var(--vl))"></div></div></div>
+          <div class="pr"><div class="prt"><span class="prl">Réunions & admin</span><span class="prp" style="color:var(--a)">22%</span></div><div class="prb"><div class="prf" style="width:22%;background:var(--a)"></div></div></div>
+          <div class="pr"><div class="prt"><span class="prl">Pauses</span><span class="prp" style="color:var(--g)">12%</span></div><div class="prb"><div class="prf" style="width:12%;background:var(--g)"></div></div></div>
+          <div class="pr"><div class="prt"><span class="prl">Distractions</span><span class="prp" style="color:var(--r)">8%</span></div><div class="prb"><div class="prf" style="width:8%;background:var(--r)"></div></div></div>
+          <div class="div"></div>
+          <div class="ins"><span class="iico">📈</span><span class="it">Tu évites les <strong>tâches créatives le matin</strong>. Programme-les avant 11h.</span></div>
+          <div class="ins"><span class="iico">⚡</span><span class="it">Tes sessions de <strong>45 minutes</strong> sont plus efficaces que celles de 25 min.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANNING -->
+    <div class="page" id="page-planning">
+      <div class="ph"><div><div class="pt">Planning IA</div><div class="ps">Modifie, ajoute ou supprime tes tâches librement</div></div><button class="btn bp" onclick="regeneratePlanning()">🔄 Régénérer</button></div>
+      <div class="g2">
+        <div class="card">
+          <div class="st">Aujourd'hui — Dimanche 22 mars</div>
+          <div class="pi" id="planning-list"></div>
+          <div class="add-task" style="margin-top:10px;">
+            <input class="add-input" id="new-task-input" placeholder="Ajouter une tâche..." onkeydown="if(event.key==='Enter')addTask()"/>
+            <select class="add-sel" id="new-task-prio"><option value="tr">Urgent</option><option value="ta">Moyen</option><option value="tv" selected>Normal</option></select>
+            <button class="btn bp" style="padding:7px 11px;" onclick="addTask()">+</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="st">Comment l'IA construit ton planning</div>
+          <div class="ins"><span class="iico">🧠</span><span class="it">Analyse de tes <strong>pics d'énergie</strong> sur les 30 derniers jours</span></div>
+          <div class="ins"><span class="iico">📊</span><span class="it">Priorisation selon l'<strong>urgence et l'importance</strong> de chaque tâche</span></div>
+          <div class="ins"><span class="iico">⏰</span><span class="it">Respect de tes <strong>blocs de récupération</strong> pour éviter le burnout</span></div>
+          <div class="ins"><span class="iico">🎯</span><span class="it">Tâches créatives sur tes <strong>meilleurs créneaux</strong> de concentration</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRAVAIL COLLECTIF -->
+    <div class="page" id="page-doubling">
+      <div class="ph"><div><div class="pt">Travail collectif</div><div class="ps">Rejoins une salle et bosse en silence avec d'autres</div></div><button class="btn bp" onclick="openCreateRoom()">+ Créer une salle</button></div>
+      <div class="rooms" id="rooms-grid"></div>
+    </div>
+
+    <!-- DISCORD -->
+    <div class="page" id="page-discord">
+      <div class="ph"><div><div class="pt">Discord</div><div class="ps">Intègre TrackPulse à tes serveurs Discord</div></div></div>
+      <div class="dccard">
+        <div class="dcico"><svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></div>
+        <div style="flex:1"><div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:var(--t)">TrackPulse connecté à Discord</div><div style="font-size:11px;color:var(--m);margin-top:2px">3 serveurs actifs · 847 sessions ce mois · 12 400 min de focus</div></div>
+        <button class="btn bp" onclick="openAddServer()">+ Ajouter un serveur</button>
+      </div>
+      <div class="g2">
+        <div>
+          <div class="st">Serveurs connectés</div>
+          <div id="server-list">
+            <div class="srvi"><div class="sico" style="background:var(--vd)">🚀</div><div><div class="sn">Entrepreneurs FR</div><div class="sm">4 200 membres</div></div><div class="ss">342 sessions</div><div class="tgl on" onclick="this.classList.toggle('on');notify('Serveur mis à jour','success')"></div></div>
+            <div class="srvi"><div class="sico" style="background:rgba(62,207,142,0.1)">📚</div><div><div class="sn">Étudiants Prépa</div><div class="sm">1 800 membres</div></div><div class="ss">298 sessions</div><div class="tgl on" onclick="this.classList.toggle('on');notify('Serveur mis à jour','success')"></div></div>
+            <div class="srvi"><div class="sico" style="background:rgba(245,166,35,0.1)">💻</div><div><div class="sn">Devs & Créateurs</div><div class="sm">920 membres</div></div><div class="ss">207 sessions</div><div class="tgl on" onclick="this.classList.toggle('on');notify('Serveur mis à jour','success')"></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="st">Terminal Discord — Teste les commandes</div>
+          <div class="dc-terminal" id="dc-terminal">
+            <div class="dc-line"><span class="dc-prompt">#focus-sessions &gt;</span><span class="dc-cmd"> /focus 25min</span></div>
+            <div class="dc-line" style="margin-left:16px"><span class="dc-resp">✅ Session de 25 min lancée ! Bon focus 🎯</span></div>
+            <div class="dc-line"><span class="dc-prompt">#focus-sessions &gt;</span><span class="dc-cmd"> /stats</span></div>
+            <div class="dc-line" style="margin-left:16px"><span class="dc-resp">📊 Cette semaine : 18h focus · Score : 74/100</span></div>
+          </div>
+          <div class="dc-inp">
+            <span class="dc-p2">#focus-sessions &gt;</span>
+            <input class="dc-cinput" id="dc-input" placeholder="Tape une commande..." onkeydown="if(event.key==='Enter')runDiscordCmd()"/>
+            <button class="btn bp" style="padding:5px 11px;font-size:11px" onclick="runDiscordCmd()">Envoyer</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;">
+            <button class="btn bg2btn" style="font-size:10px;padding:3px 8px" onclick="document.getElementById('dc-input').value='/focus 45min'">/focus 45min</button>
+            <button class="btn bg2btn" style="font-size:10px;padding:3px 8px" onclick="document.getElementById('dc-input').value='/stats'">/stats</button>
+            <button class="btn bg2btn" style="font-size:10px;padding:3px 8px" onclick="document.getElementById('dc-input').value='/leaderboard'">/leaderboard</button>
+            <button class="btn bg2btn" style="font-size:10px;padding:3px 8px" onclick="document.getElementById('dc-input').value='/score'">/score</button>
+            <button class="btn bg2btn" style="font-size:10px;padding:3px 8px" onclick="document.getElementById('dc-input').value='/help'">/help</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOURNAL -->
+    <div class="page" id="page-journal">
+      <div class="ph"><div><div class="pt">Journal de procrastination IA</div><div class="ps">Note ce que tu faisais au lieu de travailler</div></div></div>
+      <div class="jinw"><span style="font-size:14px">✍️</span><input class="jinput" placeholder="Au lieu de travailler, je faisais..." id="j-input"/><button class="btn bp" style="padding:6px 11px;font-size:11px" onclick="addJournal()">Enregistrer</button></div>
+      <div class="st">Aujourd'hui</div>
+      <div id="journal-list">
+        <div class="jentry"><div class="jmeta"><span class="jtime">10:42</span><span class="jtag">Réseaux sociaux</span></div><div class="jtext">J'ai scrollé Instagram pendant 25 minutes au lieu de finir mon rapport.</div><div class="jins">💡 Pattern : tu scrolles souvent après les emails du matin.</div></div>
+        <div class="jentry"><div class="jmeta"><span class="jtime">14:15</span><span class="jtag">Perfectionnisme</span></div><div class="jtext">J'ai refait la mise en page 3 fois au lieu d'avancer sur le fond.</div><div class="jins">💡 Pattern : tu procrastines sur les tâches créatives par perfectionnisme.</div></div>
+      </div>
+      <div class="div"></div>
+      <div class="st">Analyse IA</div>
+      <div class="ins"><span class="iico">🎯</span><span class="it">Ton déclencheur #1 : <strong>après le déjeuner</strong>, tu scrolles 34 min en moyenne.</span></div>
+      <div class="ins"><span class="iico">🧩</span><span class="it">Tu procrastines 3x plus sur les <strong>tâches créatives</strong> que sur les tâches analytiques.</span></div>
+      <div class="ins"><span class="iico">🔑</span><span class="it">Solution : règle des <strong>2 minutes</strong> après chaque pause pour démarrer immédiatement.</span></div>
+    </div>
+
+    <!-- COACH -->
+    <div class="page" id="page-coach">
+      <div class="ph"><div><div class="pt">Coach de responsabilisation IA</div><div class="ps">Ton coach personnel pour rester aligné</div></div></div>
+      <div class="g2">
+        <div>
+          <div class="cobb"><div class="cobq">Qu'est-ce que tu veux accomplir aujourd'hui ? Donne tes 3 priorités.</div><textarea class="cobta" rows="3" placeholder="Ex: Finir le module de login, envoyer le devis client, 2h de deep work..." id="coach-obj"></textarea><button class="btn bp" style="margin-top:9px;width:100%;justify-content:center" onclick="saveObjectives()">Valider mes objectifs</button></div>
+          <div class="cobb"><div class="cobq">Il est 17h. Combien d'objectifs tu as accomplis ?</div><div style="display:flex;gap:7px;margin-top:9px"><button class="btn bg2btn" style="flex:1;justify-content:center;font-size:11px" onclick="reportProgress(0)">0 😔</button><button class="btn bg2btn" style="flex:1;justify-content:center;font-size:11px" onclick="reportProgress(2)">1 ou 2 🙂</button><button class="btn bp" style="flex:1;justify-content:center;font-size:11px" onclick="reportProgress(3)">Les 3 ✓ 🔥</button></div></div>
+        </div>
+        <div>
+          <div class="st">Historique</div>
+          <div class="blitem" style="margin-bottom:5px"><div style="width:5px;height:5px;border-radius:50%;background:var(--g);flex-shrink:0"></div><div style="flex:1;margin-left:8px"><div style="font-size:12px;color:var(--t)">Vendredi 21 mars</div><div style="font-size:10px;color:var(--m)">3/3 objectifs atteints</div></div><span style="font-size:11px;color:var(--g)">✓ Parfait</span></div>
+          <div class="blitem" style="margin-bottom:5px"><div style="width:5px;height:5px;border-radius:50%;background:var(--a);flex-shrink:0"></div><div style="flex:1;margin-left:8px"><div style="font-size:12px;color:var(--t)">Jeudi 20 mars</div><div style="font-size:10px;color:var(--m)">2/3 objectifs atteints</div></div><span style="font-size:11px;color:var(--a)">Bien</span></div>
+          <div class="div"></div>
+          <div class="ins"><span class="iico">🏆</span><span class="it">Tu atteins tes objectifs <strong>74% du temps</strong>. Moyenne TrackPulse : 61%.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HABITS -->
+    <div class="page" id="page-habits">
+      <div class="ph"><div><div class="pt">Habitudes & Routine</div><div class="ps">Construis des routines solides, un jour à la fois</div></div><button class="btn bp" onclick="addHabit()">+ Ajouter</button></div>
+      <div class="g2">
+        <div>
+          <div class="st">🌅 Routine du matin</div>
+          <div class="hitem" onclick="toggleHabit(this)"><div class="hcheck done">✓</div><div style="flex:1"><div style="font-size:12px;color:var(--t);font-weight:500">Réveil sans téléphone</div><div style="font-size:10px;color:var(--m)">07:00 · 5 min</div></div><div style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--a);margin-left:auto">🔥 12</div></div>
+          <div class="hitem" onclick="toggleHabit(this)"><div class="hcheck done">✓</div><div style="flex:1"><div style="font-size:12px;color:var(--t);font-weight:500">Journaling matinal</div><div style="font-size:10px;color:var(--m)">07:10 · 10 min</div></div><div style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--a);margin-left:auto">🔥 8</div></div>
+          <div class="hitem" onclick="toggleHabit(this)"><div class="hcheck done">✓</div><div style="flex:1"><div style="font-size:12px;color:var(--t);font-weight:500">Planification IA</div><div style="font-size:10px;color:var(--m)">07:30 · 5 min</div></div><div style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--a);margin-left:auto">🔥 12</div></div>
+          <div class="hitem" onclick="toggleHabit(this)"><div class="hcheck"></div><div style="flex:1"><div style="font-size:12px;color:var(--t);font-weight:500">Première session focus</div><div style="font-size:10px;color:var(--m)">09:00 · 45 min</div></div><div style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--d);margin-left:auto">🔥 0</div></div>
+          <div class="st" style="margin-top:12px">🌙 Routine du soir</div>
+          <div class="hitem" onclick="toggleHabit(this)"><div class="hcheck"></div><div style="flex:1"><div style="font-size:12px;color:var(--t);font-weight:500">Bilan de journée</div><div style="font-size:10px;color:var(--m)">19:00 · 10 min</div></div><div style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--d);margin-left:auto">🔥 5</div></div>
+          <div class="hitem" onclick="toggleHabit(this)"><div class="hcheck"></div><div style="flex:1"><div style="font-size:12px;color:var(--t);font-weight:500">Planning du lendemain</div><div style="font-size:10px;color:var(--m)">19:15 · 5 min</div></div><div style="display:flex;align-items:center;gap:3px;font-size:11px;color:var(--d);margin-left:auto">🔥 3</div></div>
+        </div>
+        <div>
+          <div class="st">Progression du mois</div>
+          <div class="hgrid" id="habit-grid"></div>
+          <div class="ins"><span class="iico">🎯</span><span class="it">Tu complètes <strong>78% de tes habitudes matinales</strong>. Le soir reste ton point faible.</span></div>
+          <div class="ins"><span class="iico">⚡</span><span class="it">Les jours où tu fais ton <strong>planning matinal</strong>, tu es 52% plus productif.</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<!-- SETTINGS -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="settings-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--b2);">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;">⚙️ Paramètres</div>
+      <button onclick="closeModal('settings-modal')" style="background:none;border:none;color:var(--m);cursor:pointer;font-size:18px;line-height:1">×</button>
+    </div>
+    <div class="stabs">
+      <div class="stab active" onclick="switchTab(this,'tab-focus')">Focus</div>
+      <div class="stab" onclick="switchTab(this,'tab-blocage')">Blocage</div>
+      <div class="stab" onclick="switchTab(this,'tab-notifs')">Notifications</div>
+      <div class="stab" onclick="switchTab(this,'tab-compte')">Compte</div>
+    </div>
+    <div class="stabody">
+      <div class="stabpanel active" id="tab-focus">
+        <div class="srow"><div><div class="srlbl">Durée de session</div><div class="srsub">Durée par défaut d'une session</div></div><select class="sselect" onchange="notify('Durée mise à jour ✓','success')"><option>25 minutes</option><option>45 minutes</option><option>60 minutes</option><option>90 minutes</option></select></div>
+        <div class="srow"><div><div class="srlbl">Durée des pauses</div><div class="srsub">Pause courte entre sessions</div></div><select class="sselect"><option>5 minutes</option><option>10 minutes</option><option>15 minutes</option></select></div>
+        <div class="srow"><div><div class="srlbl">Son de fin de session</div></div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="srow"><div><div class="srlbl">Démarrage automatique</div></div><div class="tgl" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="stabpanel" id="tab-blocage">
+        <div class="srow"><div><div class="srlbl">Blocage strict</div><div class="srsub">Impossible de débloquer en session</div></div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="srow"><div><div class="srlbl">Synchro multi-appareils</div></div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="margin-top:12px"><div style="font-size:11px;color:var(--m);margin-bottom:8px">Sites bloqués personnalisés</div><div style="display:flex;gap:6px;"><input class="sinput" style="flex:1" id="block-site-input" placeholder="ex: reddit.com"/><button class="btn bp" style="padding:6px 11px;font-size:11px" onclick="addBlockSite()">+</button></div><div id="block-sites-list" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;"><span style="background:var(--vd);color:var(--vl);padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer" onclick="this.remove()">instagram.com ×</span><span style="background:var(--vd);color:var(--vl);padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer" onclick="this.remove()">youtube.com ×</span></div></div>
+      </div>
+      <div class="stabpanel" id="tab-notifs">
+        <div class="srow"><div><div class="srlbl">Notifications push</div></div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="srow"><div><div class="srlbl">Alerte de distraction</div></div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="srow"><div><div class="srlbl">Rapport quotidien à 18h</div></div><div class="tgl on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="srow"><div><div class="srlbl">Rappel planning</div></div><div class="tgl" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="stabpanel" id="tab-compte">
+        <div class="srow"><div><div class="srlbl">Nom d'affichage</div></div><input class="sinput" id="settings-name" value="Toi" onchange="updateName(this.value)"/></div>
+        <div class="srow"><div><div class="srlbl">Email</div></div><input class="sinput" id="settings-email" value="" type="email"/></div>
+        <div class="srow"><div><div class="srlbl">Plan</div><div class="srsub" id="settings-plan-label">Beta Testeur · 3,99€/mois</div></div><span class="beta-chip" style="font-size:10px;padding:3px 9px">Beta</span></div>
+        <div class="srow"><div><div class="srlbl" style="color:var(--r)">Se déconnecter</div></div><button class="btn brbtn" style="font-size:11px;padding:5px 10px" onclick="logout()">Déconnexion</button></div>
+      </div>
+    </div>
+    <div style="padding:12px 18px;border-top:1px solid var(--b2);display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn bg2btn" onclick="closeModal('settings-modal')">Annuler</button>
+      <button class="btn bp" onclick="saveSettings()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE ROOM -->
+<div class="modal-overlay" id="create-room-modal">
+  <div class="modal">
+    <div class="modal-title">🏠 Créer une salle de travail</div>
+    <div class="modal-sub">Configure ta salle de deep work collectif</div>
+    <div class="form-group2"><label class="form-label2">Nom de la salle</label><input class="form-input2" id="room-name" placeholder="Ex: Deep Work · Entrepreneurs"/></div>
+    <div class="form-row">
+      <div class="form-group2" style="flex:1"><label class="form-label2">Durée</label><select class="form-input2" id="room-duration"><option>30 min</option><option selected>45 min</option><option>60 min</option><option>90 min</option></select></div>
+      <div class="form-group2" style="flex:1"><label class="form-label2">Capacité</label><select class="form-input2" id="room-capacity"><option>5</option><option selected>10</option><option>20</option><option>50</option></select></div>
+    </div>
+    <div class="form-group2"><label class="form-label2">Type</label><select class="form-input2" id="room-type"><option>Silencieux</option><option>Chat texto</option><option>Vocal activé</option></select></div>
+    <div class="form-group2"><label class="form-label2">Description</label><input class="form-input2" id="room-desc" placeholder="Ex: Session deep work, tous sujets bienvenus"/></div>
+    <div class="modal-btns"><button class="btn bg2btn" onclick="closeModal('create-room-modal')">Annuler</button><button class="btn bp" onclick="createRoom()">🚀 Créer</button></div>
+  </div>
+</div>
+
+<!-- ROOM DETAIL -->
+<div class="modal-overlay" id="room-detail-modal">
+  <div class="room-detail">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+      <div><div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;" id="rd-name"></div><div style="font-size:11px;color:var(--m);margin-top:2px;" id="rd-desc"></div></div>
+      <button onclick="closeModal('room-detail-modal')" style="background:none;border:none;color:var(--m);cursor:pointer;font-size:18px;line-height:1">×</button>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;">
+      <div style="flex:1;background:var(--bg3);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:11px;color:var(--m)">Membres</div><div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--t)" id="rd-count">0</div></div>
+      <div style="flex:1;background:var(--bg3);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:11px;color:var(--m)">Temps restant</div><div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--vl)" id="rd-timer">45:00</div></div>
+      <div style="flex:1;background:var(--bg3);border-radius:8px;padding:10px;text-align:center;"><div style="font-size:11px;color:var(--m)">Type</div><div style="font-size:12px;font-weight:600;color:var(--g)" id="rd-type">Live</div></div>
+    </div>
+    <div id="rd-members" style="margin-bottom:12px;"></div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;color:var(--t);margin-bottom:8px">Chat</div>
+    <div class="chat-area" id="room-chat"></div>
+    <div class="chat-inp"><input class="chat-input" id="chat-input" placeholder="Envoyer un message..." onkeydown="if(event.key==='Enter')sendChat()"/><button class="btn bp" style="padding:6px 11px;font-size:11px" onclick="sendChat()">Envoyer</button></div>
+    <div style="display:flex;gap:8px;margin-top:10px;"><button class="btn bp" style="flex:1;justify-content:center" onclick="joinRoom()">✅ Rejoindre</button><button class="btn brbtn" onclick="closeModal('room-detail-modal')">Fermer</button></div>
+  </div>
+</div>
+
+<!-- ADD SERVER -->
+<div class="modal-overlay" id="add-server-modal">
+  <div class="modal">
+    <div class="modal-title">➕ Ajouter un serveur Discord</div>
+    <div class="modal-sub">Connecte un nouveau serveur à TrackPulse</div>
+    <div class="form-group2"><label class="form-label2">Lien d'invitation</label><input class="form-input2" id="server-invite" placeholder="https://discord.gg/..."/></div>
+    <div class="form-group2"><label class="form-label2">Nom du serveur</label><input class="form-input2" id="server-name-input" placeholder="Ex: Mon serveur"/></div>
+    <div class="modal-btns"><button class="btn bg2btn" onclick="closeModal('add-server-modal')">Annuler</button><button class="btn bp" onclick="connectServer()">🔗 Connecter</button></div>
+  </div>
+</div>
+
+<script>
+// =================== STATE ===================
+let currentUser = null;
+let otpCode = '';
+let resendTimer = null;
+
+// =================== AUTH ===================
+function showScreen(id) {
+  document.querySelectorAll('.auth-screen').forEach(s => s.classList.add('hidden'));
+  const el = document.getElementById(id);
+  if(el) el.classList.remove('hidden');
+}
+
+function showPricing() { document.getElementById('pricing-screen').classList.add('show'); }
+function hidePricing() { document.getElementById('pricing-screen').classList.remove('show'); }
+function selectPlan(plan) { hidePricing(); showScreen('screen-register'); if(plan==='beta') notify('🎉 Plan Beta sélectionné à 3,99€/mois !','success'); }
+
+function register() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-password').value;
+  const pass2 = document.getElementById('reg-password2').value;
+  const errEl = document.getElementById('reg-error');
+  errEl.style.display = 'none';
+  if(!name) { showError('reg-error', 'Entre ton prénom'); return; }
+  if(!email || !email.includes('@')) { showError('reg-error', 'Email invalide'); return; }
+  if(pass.length < 8) { showError('reg-error', 'Le mot de passe doit faire au moins 8 caractères'); return; }
+  if(pass !== pass2) { showError('reg-error', 'Les mots de passe ne correspondent pas'); return; }
+  const btn = document.getElementById('reg-btn');
+  btn.textContent = 'Envoi du code...';
+  btn.disabled = true;
+  // Simulate sending code
+  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  setTimeout(() => {
+    btn.textContent = 'Créer mon compte';
+    btn.disabled = false;
+    currentUser = { name, email, plan: 'beta' };
+    document.getElementById('verify-email-display').textContent = email;
+    showScreen('screen-verify');
+    notify('📬 Code envoyé à ' + email + ' (simulation : ' + otpCode + ')','success');
+    startResendTimer();
+  }, 1200);
+}
+
+function otpNext(i) {
+  const val = document.getElementById('otp'+i).value;
+  if(val && i < 5) document.getElementById('otp'+(i+1)).focus();
+}
+
+function otpKey(e, i) {
+  if(e.key === 'Backspace' && !document.getElementById('otp'+i).value && i > 0) {
+    document.getElementById('otp'+(i-1)).focus();
+  }
+}
+
+function getOtpValue() {
+  return [0,1,2,3,4,5].map(i => document.getElementById('otp'+i).value).join('');
+}
+
+function verifyCode() {
+  const entered = getOtpValue();
+  const errEl = document.getElementById('verify-error');
+  errEl.style.display = 'none';
+  if(entered.length < 6) { showError('verify-error', 'Entre les 6 chiffres du code'); return; }
+  const btn = document.getElementById('verify-btn');
+  btn.textContent = 'Vérification...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Vérifier le code';
+    btn.disabled = false;
+    // Accept the real code OR 123456 as demo
+    if(entered === otpCode || entered === '123456') {
+      // Save to localStorage
+      const users = JSON.parse(localStorage.getItem('tp_users') || '[]');
+      users.push(currentUser);
+      localStorage.setItem('tp_users', JSON.stringify(users));
+      localStorage.setItem('tp_current', JSON.stringify(currentUser));
+      // Show onboarding
+      document.getElementById('ob-name').textContent = currentUser.name + ' 👋';
+      showScreen('screen-landing');
+      document.querySelectorAll('.auth-screen').forEach(s => s.classList.add('hidden'));
+      showOnboarding();
+    } else {
+      showError('verify-error', 'Code incorrect. Essaie 123456 en démo.');
+    }
+  }, 800);
+}
+
+function resendCode() {
+  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  notify('📬 Nouveau code envoyé (simulation : ' + otpCode + ')','success');
+  startResendTimer();
+}
+
+function startResendTimer() {
+  let t = 60;
+  const el = document.getElementById('resend-timer');
+  if(resendTimer) clearInterval(resendTimer);
+  resendTimer = setInterval(() => {
+    t--;
+    el.textContent = 'Renvoyer dans ' + t + 's';
+    if(t <= 0) { clearInterval(resendTimer); el.textContent = ''; }
+  }, 1000);
+}
+
+function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if(!email || !pass) { showError('login-error', 'Remplis tous les champs'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Connexion...';
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = 'Se connecter';
+    btn.disabled = false;
+    // Check localStorage or accept demo@trackpulse.app / demo1234
+    const users = JSON.parse(localStorage.getItem('tp_users') || '[]');
+    const found = users.find(u => u.email === email);
+    if(found || (email === 'demo@trackpulse.app' && pass === 'demo1234')) {
+      currentUser = found || { name: 'Demo', email, plan: 'beta' };
+      localStorage.setItem('tp_current', JSON.stringify(currentUser));
+      enterApp();
+    } else {
+      showError('login-error', 'Email ou mot de passe incorrect. Demo : demo@trackpulse.app / demo1234');
+    }
+  }, 800);
+}
+
+function sendReset() {
+  const email = document.getElementById('forgot-email').value.trim();
+  if(!email || !email.includes('@')) { notify('Email invalide','error'); return; }
+  notify('📬 Lien envoyé à ' + email,'success');
+  setTimeout(() => showScreen('screen-login'), 1500);
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// =================== ONBOARDING ===================
+let obStep = 0;
+function showOnboarding() {
+  document.getElementById('onboard-screen').classList.add('show');
+  document.getElementById('ob-name').textContent = (currentUser?.name || 'toi') + ' !';
+}
+
+function nextStep(s) {
+  document.getElementById('op'+obStep).classList.remove('active');
+  document.getElementById('os'+obStep).classList.remove('active');
+  document.getElementById('os'+obStep).classList.add('done');
+  document.getElementById('os'+obStep).textContent = '✓';
+  if(obStep < 3) document.getElementById('ol'+obStep).classList.add('done');
+  obStep = s;
+  document.getElementById('op'+s).classList.add('active');
+  document.getElementById('os'+s).classList.remove('inactive');
+  document.getElementById('os'+s).classList.add('active');
+}
+
+function selectOption(el) {
+  el.closest('.option-grid').querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function enterApp() {
+  document.getElementById('onboard-screen').classList.remove('show');
+  document.querySelectorAll('.auth-screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('app').classList.add('show');
+  if(currentUser) {
+    document.getElementById('user-display-name').textContent = currentUser.name || 'Toi';
+    document.getElementById('user-avatar').textContent = (currentUser.name || 'T')[0].toUpperCase();
+    document.getElementById('dash-greeting').textContent = 'Bonjour ' + (currentUser.name || '') + ' 👋';
+    document.getElementById('settings-email').value = currentUser.email || '';
+    document.getElementById('settings-name').value = currentUser.name || '';
+  }
+  renderPlanning();
+  renderRooms();
+  buildHabitGrid();
+  updateDisplay();
+}
+
+function logout() {
+  localStorage.removeItem('tp_current');
+  currentUser = null;
+  closeModal('settings-modal');
+  document.getElementById('app').classList.remove('show');
+  showScreen('screen-landing');
+  notify('Déconnecté ✓','success');
+}
+
+// Check if already logged in
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('tp_current');
+  if(saved) { try { currentUser = JSON.parse(saved); enterApp(); } catch(e) { showScreen('screen-landing'); } }
+  else { showScreen('screen-landing'); }
+});
+
+// =================== NAV ===================
+document.querySelectorAll('.ni').forEach(item => {
+  item.addEventListener('click', function() { const p = this.getAttribute('data-page'); if(p) goPage(p); });
+});
+
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  const item = document.querySelector('.ni[data-page="'+id+'"]');
+  if(item) item.classList.add('active');
+  document.querySelector('.main').scrollTop = 0;
+}
+
+// =================== TIMER ===================
+const TOTAL = 25*60;
+let secs = 25*60;
+let running = false;
+let timerInt = null;
+const C = 2*Math.PI*72;
+
+function updateDisplay() {
+  const m = Math.floor(secs/60), s = secs%60;
+  const el = document.getElementById('timer-display');
+  if(el) el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const prog = (TOTAL-secs)/TOTAL;
+  const rp = document.getElementById('ring-prog');
+  if(rp) { rp.style.strokeDasharray = C; rp.style.strokeDashoffset = C*(1-prog); }
+}
+
+function toggleTimer() {
+  running = !running;
+  const icon = document.getElementById('play-icon');
+  if(running) {
+    if(icon) icon.innerHTML = '<rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/>';
+    timerInt = setInterval(() => { if(secs>0){secs--;updateDisplay();}else{clearInterval(timerInt);running=false;notify('🎉 Session terminée ! Bien joué.','success');} }, 1000);
+  } else {
+    if(icon) icon.innerHTML = '<polygon points="5,3 19,12 5,21" fill="white"/>';
+    clearInterval(timerInt);
+  }
+}
+
+function resetTimer() { clearInterval(timerInt); running=false; secs=TOTAL; const icon=document.getElementById('play-icon'); if(icon) icon.innerHTML='<polygon points="5,3 19,12 5,21" fill="white"/>'; updateDisplay(); notify('Timer réinitialisé','success'); }
+function stopTimer() { clearInterval(timerInt); running=false; secs=TOTAL; const icon=document.getElementById('play-icon'); if(icon) icon.innerHTML='<polygon points="5,3 19,12 5,21" fill="white"/>'; updateDisplay(); goPage('dashboard'); notify('Session terminée ✓','success'); }
+
+// =================== PLANNING ===================
+let tasks = [
+  {time:'09:00',task:'Révision projet client',prio:'tr',done:true,dot:'var(--g)'},
+  {time:'10:00',task:'Emails et tâches admin',prio:'tv',done:true,dot:'var(--g)'},
+  {time:'14:00',task:'Deep work — développement',prio:'tr',done:false,dot:'var(--v)'},
+  {time:'16:00',task:'Revue hebdomadaire',prio:'ta',done:false,dot:'var(--a)'},
+  {time:'17:00',task:'Formation / lecture',prio:'tv',done:false,dot:'var(--d)'},
+];
+const prioLabel = {tr:'Urgent',ta:'Moyen',tv:'Normal'};
+const dotMap = {tr:'var(--r)',ta:'var(--a)',tv:'var(--vl)'};
+
+function renderPlanning() {
+  ['planning-list','dash-tasks'].forEach(id => {
+    const list = document.getElementById(id);
+    if(!list) return;
+    list.innerHTML = tasks.map((t,i) => `
+      <div class="pitem ${t.done?'done':''}">
+        <div class="pcheck ${t.done?'done':''}" onclick="togglePTask(${i})">${t.done?'✓':''}</div>
+        <span class="ptime">${t.time}</span>
+        <div class="pdot" style="background:${t.dot}"></div>
+        <span class="ptask" contenteditable="true" onblur="tasks[${i}].task=this.textContent.trim()">${t.task}</span>
+        <span class="tag ${t.prio}">${prioLabel[t.prio]}</span>
+        ${id==='planning-list'?`<button class="pdel" onclick="deleteTask(${i})">×</button>`:''}
+      </div>`).join('');
+  });
+}
+
+function togglePTask(i) { tasks[i].done=!tasks[i].done; renderPlanning(); notify(tasks[i].done?'✅ Tâche complétée !':'Tâche remise en cours','success'); }
+function deleteTask(i) { tasks.splice(i,1); renderPlanning(); notify('Tâche supprimée','success'); }
+function addTask() {
+  const inp = document.getElementById('new-task-input');
+  const sel = document.getElementById('new-task-prio');
+  if(!inp.value.trim()) return;
+  const hours = ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00','18:00'];
+  tasks.push({time:hours[tasks.length%hours.length],task:inp.value.trim(),prio:sel.value,done:false,dot:dotMap[sel.value]});
+  inp.value='';
+  renderPlanning();
+  notify('Tâche ajoutée ✓','success');
+}
+function regeneratePlanning() {
+  notify('🤖 L\'IA analyse tes données...','success');
+  setTimeout(()=>{ tasks.forEach(t=>t.done=false); renderPlanning(); notify('✨ Planning régénéré !','success'); },1200);
+}
+
+// =================== ROOMS ===================
+let rooms = [
+  {id:1,name:'Deep Work · Entrepreneurs',desc:'Session 90 min — travail silencieux',live:true,count:12,members:['A','M','S','K'],colors:['#7c5cfc','#4ade80','#f87171','#fbbf24'],type:'Silencieux',timer:47*60+23},
+  {id:2,name:'Étudiants · Révisions',desc:'Session 45 min — Pomodoro collectif',live:true,count:3,members:['L','R','T'],colors:['#22d3ee','#f472b6','#34d399'],type:'Chat',timer:28*60+10},
+  {id:3,name:'Freelances · Remote',desc:'Débute dans 12 minutes',live:false,count:0,members:[],colors:[],type:'Vocal',timer:60*60},
+  {id:4,name:'Créatifs · Design & Code',desc:'Session 60 min — musique lofi',live:false,count:2,members:['P','N'],colors:['#f59e0b','#8b5cf6'],type:'Chat',timer:32*60+45},
+];
+
+function renderRooms() {
+  const grid = document.getElementById('rooms-grid');
+  if(!grid) return;
+  grid.innerHTML = rooms.map(r => `
+    <div class="room ${r.live?'live':''}" onclick="openRoom(${r.id})">
+      ${r.live?'<div class="rbadge">🔴 En direct</div>':''}
+      <div class="rn">${r.name}</div>
+      <div class="rd">${r.desc}</div>
+      <div style="display:flex;align-items:center">
+        <div class="mavs">${r.members.slice(0,4).map((m,i)=>`<div class="mav" style="background:${r.colors[i]||'#7c5cfc'}">${m}</div>`).join('')}</div>
+        <span style="font-size:10px;color:var(--m);margin-left:5px">${r.count>0?(r.count>4?'+'+( r.count-4)+' membres':r.count+' personne'+(r.count>1?'s':'')):'0 participants'}</span>
+        ${r.type==='Vocal activé'||r.type==='Vocal'?'<span style="margin-left:auto;font-size:10px;color:var(--vl)">🎙️</span>':''}
+      </div>
+    </div>`).join('');
+}
+
+function openRoom(id) {
+  const r = rooms.find(x=>x.id===id);
+  if(!r) return;
+  document.getElementById('rd-name').textContent = r.name;
+  document.getElementById('rd-desc').textContent = r.desc;
+  document.getElementById('rd-count').textContent = r.count;
+  document.getElementById('rd-type').textContent = r.live?'🔴 Live':'⏳ Bientôt';
+  const m = Math.floor(r.timer/60), s = r.timer%60;
+  document.getElementById('rd-timer').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  const names = ['Alexandre','Marie','Sophie','Karim','Lucas','Rania'];
+  document.getElementById('rd-members').innerHTML = r.members.slice(0,4).map((m,i) => `
+    <div class="rmember">
+      <div class="rmav" style="background:${r.colors[i]||'#7c5cfc'}">${m}</div>
+      <div class="rmname">${names[i]||m}</div>
+      <span style="font-size:10px;color:var(--g)">En focus</span>
+      ${r.type==='Vocal'?'<div class="voice-bar"><div class="vbar"></div><div class="vbar"></div><div class="vbar"></div><div class="vbar"></div></div>':''}
+    </div>`).join('');
+  document.getElementById('room-chat').innerHTML = `
+    <div class="chat-msg"><span class="chat-name">Alexandre :</span><span> On y va ! 💪</span></div>
+    <div class="chat-msg"><span class="chat-name">Marie :</span><span> Focus max !</span></div>`;
+  openModal('room-detail-modal');
+  if(r.live) {
+    const intv = setInterval(()=>{
+      if(r.timer>0){r.timer--;const mm=Math.floor(r.timer/60),ss=r.timer%60;const el=document.getElementById('rd-timer');if(el)el.textContent=String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0');}else clearInterval(intv);
+    },1000);
+  }
+}
+
+function joinRoom() { closeModal('room-detail-modal'); notify('✅ Tu as rejoint la salle ! Bon focus 🎯','success'); }
+function sendChat() { const inp=document.getElementById('chat-input'); const val=inp.value.trim(); if(!val)return; const chat=document.getElementById('room-chat'); const div=document.createElement('div'); div.className='chat-msg'; div.innerHTML='<span class="chat-name">Toi :</span><span> '+val+'</span>'; chat.appendChild(div); chat.scrollTop=chat.scrollHeight; inp.value=''; }
+function openCreateRoom() { openModal('create-room-modal'); }
+function createRoom() {
+  const name = document.getElementById('room-name').value.trim()||'Ma salle de travail';
+  const duration = document.getElementById('room-duration').value;
+  const desc = document.getElementById('room-desc').value.trim()||'Session de travail collectif';
+  const type = document.getElementById('room-type').value;
+  rooms.unshift({id:Date.now(),name,desc:duration+' — '+desc,live:true,count:1,members:['T'],colors:['linear-gradient(135deg,#7c5cfc,#c084fc)'],type,timer:parseInt(duration)*60});
+  renderRooms();
+  closeModal('create-room-modal');
+  notify('🏠 Salle "'+name+'" créée !','success');
+}
+
+// =================== DISCORD ===================
+const dcCmds = {
+  '/focus':(a)=>'✅ Session de '+(a[0]||'25min')+' lancée ! Bon focus 🎯\n📊 Appareils bloqués.',
+  '/stats':()=>'📊 Cette semaine :\n• Focus total : 18h 24min\n• Score moyen : 74/100\n• Sessions : 12\n• Série : 🔥 12 jours',
+  '/leaderboard':()=>'🏆 Classement :\n1. Alexandre — 24h 12min 🥇\n2. Marie — 21h 08min 🥈\n3. Toi — 18h 24min 🥉',
+  '/score':()=>'⭐ Score du jour : 78/100\n• Deep work : 3h 24min\n• Sessions : 4 complétées',
+  '/help':()=>'📋 Commandes :\n/focus [durée] /stats /leaderboard /score /room créer',
+  '/room':(a)=>a[0]==='créer'?'🏠 Salle créée ! Rejoins avec /join':'Essaie /room créer',
+};
+
+function runDiscordCmd() {
+  const inp = document.getElementById('dc-input');
+  const val = inp.value.trim();
+  if(!val) return;
+  const term = document.getElementById('dc-terminal');
+  const parts = val.split(' ');
+  const handler = dcCmds[parts[0]];
+  const l1 = document.createElement('div'); l1.className='dc-line'; l1.innerHTML=`<span class="dc-prompt">#focus-sessions &gt;</span><span class="dc-cmd"> ${val}</span>`; term.appendChild(l1);
+  const resp = handler?handler(parts.slice(1)):'❌ Commande inconnue. Tape /help';
+  resp.split('\n').forEach(line=>{ const l2=document.createElement('div'); l2.className='dc-line'; l2.style.marginLeft='16px'; l2.innerHTML=`<span class="dc-resp">${line}</span>`; term.appendChild(l2); });
+  term.scrollTop=term.scrollHeight;
+  inp.value='';
+}
+
+function openAddServer() { openModal('add-server-modal'); }
+function connectServer() {
+  const name = document.getElementById('server-name-input').value.trim()||'Nouveau serveur';
+  const list = document.getElementById('server-list');
+  const div = document.createElement('div'); div.className='srvi';
+  div.innerHTML=`<div class="sico" style="background:var(--vd)">🆕</div><div><div class="sn">${name}</div><div class="sm">Nouveau</div></div><div class="ss">0 sessions</div><div class="tgl on" onclick="this.classList.toggle('on')"></div>`;
+  list.appendChild(div);
+  closeModal('add-server-modal');
+  notify('✅ "'+name+'" connecté !','success');
+}
+
+// =================== JOURNAL ===================
+function addJournal() {
+  const inp = document.getElementById('j-input');
+  const val = inp.value.trim();
+  if(!val) return;
+  const now = new Date();
+  const time = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const tags = ['Réseaux sociaux','Distraction','Perfectionnisme','Fatigue'];
+  const el = document.createElement('div'); el.className='jentry'; el.style.animation='fi .2s ease';
+  el.innerHTML=`<div class="jmeta"><span class="jtime">${time}</span><span class="jtag">${tags[Math.floor(Math.random()*3)]}</span></div><div class="jtext">${val}</div><div class="jins">💡 Analyse IA en cours...</div>`;
+  document.getElementById('journal-list').prepend(el);
+  inp.value='';
+  notify('Entrée enregistrée ✓','success');
+  setTimeout(()=>{ el.querySelector('.jins').textContent='💡 Pattern détecté : tu procrastines souvent en début d\'après-midi.'; },1500);
+}
+
+// =================== HABITS ===================
+function toggleHabit(item) { const c=item.querySelector('.hcheck'); c.classList.toggle('done'); c.textContent=c.classList.contains('done')?'✓':''; notify(c.classList.contains('done')?'✅ Habitude complétée !':'Remise en cours','success'); }
+function addHabit() { const name=prompt('Nom de l\'habitude :'); if(!name) return; const time=prompt('Heure (ex: 08:00) :')||'08:00'; const c=document.querySelector('#page-habits .hitem').parentElement; const div=document.createElement('div'); div.className='hitem'; div.onclick=function(){toggleHabit(this);}; div.innerHTML=`<div class="hcheck"></div><div style="flex:1"><div style="font-size:12px;color:var(--t);font-weight:500">${name}</div><div style="font-size:10px;color:var(--m)">${time}</div></div><div style="font-size:11px;color:var(--d);margin-left:auto">🔥 0</div>`; c.appendChild(div); notify('Habitude ajoutée ✓','success'); }
+
+function buildHabitGrid() {
+  const grid = document.getElementById('habit-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  for(let i=0;i<31;i++){const d=document.createElement('div');d.className='hday';const today=i===21;d.style.background=today?'var(--v)':i<22?'rgba(124,92,252,0.32)':'var(--b2)';if(today)d.style.boxShadow='0 0 5px var(--vg)';grid.appendChild(d);}
+}
+
+// =================== COACH ===================
+function saveObjectives() { if(!document.getElementById('coach-obj').value.trim()){notify('Écris au moins un objectif !','error');return;} notify('✅ Objectifs enregistrés ! L\'IA les intègre.','success'); }
+function reportProgress(n) { notify({0:'💪 Demain sera meilleur. L\'IA ajuste ton planning.',2:'🙂 Bien joué ! Continue.',3:'🔥 Parfait ! Top 26% aujourd\'hui !'}[n],'success'); }
+
+// =================== SETTINGS ===================
+function openSettings() { openModal('settings-modal'); }
+function switchTab(tab,panelId) { document.querySelectorAll('.stab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.stabpanel').forEach(p=>p.classList.remove('active')); tab.classList.add('active'); document.getElementById(panelId).classList.add('active'); }
+function saveSettings() { const name=document.getElementById('settings-name').value.trim(); if(name){document.getElementById('user-display-name').textContent=name;document.getElementById('user-avatar').textContent=name[0].toUpperCase();if(currentUser){currentUser.name=name;localStorage.setItem('tp_current',JSON.stringify(currentUser));}} closeModal('settings-modal'); notify('✅ Paramètres sauvegardés !','success'); }
+function updateName(val) { if(val) document.getElementById('dash-greeting').textContent='Bonjour '+val+' 👋'; }
+function addBlockSite() { const inp=document.getElementById('block-site-input'); const val=inp.value.trim(); if(!val)return; const list=document.getElementById('block-sites-list'); const span=document.createElement('span'); span.style.cssText='background:var(--vd);color:var(--vl);padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer'; span.textContent=val+' ×'; span.onclick=function(){this.remove();}; list.appendChild(span); inp.value=''; notify(val+' ajouté','success'); }
+
+// =================== MODALS ===================
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-overlay').forEach(mo => { mo.addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');}); });
+
+// =================== NOTIF ===================
+function notify(msg, type='success') {
+  const existing=document.querySelector('.notif'); if(existing)existing.remove();
+  const div=document.createElement('div'); div.className=`notif ${type}`;
+  div.innerHTML=`<span>${msg}</span>`; document.body.appendChild(div);
+  setTimeout(()=>{if(div.parentNode)div.remove();},3000);
+}
+</script>
+</body>
+</html>
