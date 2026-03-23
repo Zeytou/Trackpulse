@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1044,6 +1045,14 @@ code{color:var(--vl);font-size:12px;font-family:monospace;}
 </div>
 
 <script>
+  const CONFIG = {
+  supabaseUrl: 'https://qycmpdablhnydczinrex.supabase.co',
+  supabaseKey: 'sb_publishable_jWoN__vKW41gnXm246cjZg_2abY0TX8',
+  apiUrl: 'https://trackpulse-nine.vercel.app',
+  stripeKey: 'pk_live_51SHYGIG3KOO7OYAWgVTEF4g5auZO58RPPVaNgmS6M60z2F0zgLYTtzJUtArrSgT4R9r56txPKmqygtvoLWqssKpa00NANW6MYD'
+};
+const { createClient } = supabase;
+const sb = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 // =================== STATE ===================
 let currentUser = null;
 let otpCode = '';
@@ -1060,31 +1069,35 @@ function showPricing() { document.getElementById('pricing-screen').classList.add
 function hidePricing() { document.getElementById('pricing-screen').classList.remove('show'); }
 function selectPlan(plan) { hidePricing(); showScreen('screen-register'); if(plan==='beta') notify('🎉 Plan Beta sélectionné à 3,99€/mois !','success'); }
 
-function register() {
+async function register() {
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-password').value;
   const pass2 = document.getElementById('reg-password2').value;
-  const errEl = document.getElementById('reg-error');
-  errEl.style.display = 'none';
-  if(!name) { showError('reg-error', 'Entre ton prénom'); return; }
-  if(!email || !email.includes('@')) { showError('reg-error', 'Email invalide'); return; }
-  if(pass.length < 8) { showError('reg-error', 'Le mot de passe doit faire au moins 8 caractères'); return; }
-  if(pass !== pass2) { showError('reg-error', 'Les mots de passe ne correspondent pas'); return; }
-  const btn = document.getElementById('reg-btn');
-  btn.textContent = 'Envoi du code...';
-  btn.disabled = true;
-  // Simulate sending code
-  otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  setTimeout(() => {
-    btn.textContent = 'Créer mon compte';
-    btn.disabled = false;
-    currentUser = { name, email, plan: 'beta' };
-    document.getElementById('verify-email-display').textContent = email;
+  if(!name){showError('reg-error','Entre ton prénom');return;}
+  if(!email||!email.includes('@')){showError('reg-error','Email invalide');return;}
+  if(pass.length<8){showError('reg-error','Mot de passe trop court');return;}
+  if(pass!==pass2){showError('reg-error','Mots de passe différents');return;}
+  const btn=document.getElementById('reg-btn');
+  btn.textContent='Envoi du code...';btn.disabled=true;
+  try {
+    const res=await fetch(CONFIG.apiUrl+'/send-otp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,name})
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error);
+    currentUser={name,email,password:pass,plan:'free'};
+    document.getElementById('verify-email-display').textContent=email;
     showScreen('screen-verify');
-    notify('📬 Code envoyé à ' + email + ' (simulation : ' + otpCode + ')','success');
+    notify('📬 Code envoyé à '+email,'success');
     startResendTimer();
-  }, 1200);
+  } catch(err){
+    showError('reg-error',err.message);
+  } finally {
+    btn.textContent='Créer mon compte';btn.disabled=false;
+  }
 }
 
 function otpNext(i) {
@@ -1102,34 +1115,39 @@ function getOtpValue() {
   return [0,1,2,3,4,5].map(i => document.getElementById('otp'+i).value).join('');
 }
 
-function verifyCode() {
-  const entered = getOtpValue();
-  const errEl = document.getElementById('verify-error');
-  errEl.style.display = 'none';
-  if(entered.length < 6) { showError('verify-error', 'Entre les 6 chiffres du code'); return; }
-  const btn = document.getElementById('verify-btn');
-  btn.textContent = 'Vérification...';
-  btn.disabled = true;
-  setTimeout(() => {
-    btn.textContent = 'Vérifier le code';
-    btn.disabled = false;
-    // Accept the real code OR 123456 as demo
-    if(entered === otpCode || entered === '123456') {
-      // Save to localStorage
-      const users = JSON.parse(localStorage.getItem('tp_users') || '[]');
-      users.push(currentUser);
-      localStorage.setItem('tp_users', JSON.stringify(users));
-      localStorage.setItem('tp_current', JSON.stringify(currentUser));
-      // Show onboarding
-      document.getElementById('ob-name').textContent = currentUser.name + ' 👋';
-      showScreen('screen-landing');
-      document.querySelectorAll('.auth-screen').forEach(s => s.classList.add('hidden'));
-      showOnboarding();
-    } else {
-      showError('verify-error', 'Code incorrect. Essaie 123456 en démo.');
-    }
-  }, 800);
+async function verifyCode() {
+  const entered=getOtpValue();
+  if(entered.length<6){showError('verify-error','Entre les 6 chiffres');return;}
+  const btn=document.getElementById('verify-btn');
+  btn.textContent='Vérification...';btn.disabled=true;
+  try {
+    const res=await fetch(CONFIG.apiUrl+'/verify-otp',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        email:currentUser.email,
+        code:entered,
+        name:currentUser.name,
+        password:currentUser.password
+      })
+    });
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error);
+    const {data:authData,error}=await sb.auth.signInWithPassword({
+      email:currentUser.email,
+      password:currentUser.password
+    });
+    if(error)throw new Error(error.message);
+    currentUser={...currentUser,id:authData.user.id};
+    localStorage.setItem('tp_current',JSON.stringify(currentUser));
+    showOnboarding();
+  } catch(err){
+    showError('verify-error',err.message);
+  } finally {
+    btn.textContent='Vérifier le code';btn.disabled=false;
+  }
 }
+
 
 function resendCode() {
   otpCode = Math.floor(100000 + Math.random() * 900000).toString();
@@ -1148,30 +1166,26 @@ function startResendTimer() {
   }, 1000);
 }
 
-function login() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass = document.getElementById('login-password').value;
-  const errEl = document.getElementById('login-error');
-  errEl.style.display = 'none';
-  if(!email || !pass) { showError('login-error', 'Remplis tous les champs'); return; }
-  const btn = document.getElementById('login-btn');
-  btn.textContent = 'Connexion...';
-  btn.disabled = true;
-  setTimeout(() => {
-    btn.textContent = 'Se connecter';
-    btn.disabled = false;
-    // Check localStorage or accept demo@trackpulse.app / demo1234
-    const users = JSON.parse(localStorage.getItem('tp_users') || '[]');
-    const found = users.find(u => u.email === email);
-    if(found || (email === 'demo@trackpulse.app' && pass === 'demo1234')) {
-      currentUser = found || { name: 'Demo', email, plan: 'beta' };
-      localStorage.setItem('tp_current', JSON.stringify(currentUser));
-      enterApp();
-    } else {
-      showError('login-error', 'Email ou mot de passe incorrect. Demo : demo@trackpulse.app / demo1234');
-    }
-  }, 800);
+async function login() {
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-password').value;
+  if(!email||!pass){showError('login-error','Remplis tous les champs');return;}
+  const btn=document.getElementById('login-btn');
+  btn.textContent='Connexion...';btn.disabled=true;
+  try {
+    const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error)throw new Error('Email ou mot de passe incorrect');
+    const {data:profile}=await sb.from('profiles').select('*').eq('id',data.user.id).single();
+    currentUser={id:data.user.id,email,name:profile?.name||email,plan:profile?.plan||'free'};
+    localStorage.setItem('tp_current',JSON.stringify(currentUser));
+    enterApp();
+  } catch(err){
+    showError('login-error',err.message);
+  } finally {
+    btn.textContent='Se connecter';btn.disabled=false;
+  }
 }
+
 
 function sendReset() {
   const email = document.getElementById('forgot-email').value.trim();
